@@ -1,0 +1,14 @@
+{
+  "name": "alberto/microframework",
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "alberto",
+      "email": "boschi.alberto1@gmail.com"
+    }
+  ],
+  "require": {
+  }
+}
