@@ -89,10 +89,21 @@ class Router
         global $argv;
         $command = $argv[1] ?? '';
 
-        if (isset($this->cliCommands[$command])) {
-            call_user_func($this->cliCommands[$command], array_slice($argv, 2));
-        } else {
-            echo "Command not found: $command\n";
-        }
+        //if (str_contains($command, ':')) {
+            list($controller, $method) = explode(':', $command);
+            $controllerClass = "App\\Controller\\$controller";
+            if (class_exists($controllerClass) && method_exists($controllerClass, $method)) {
+                $controllerInstance = new $controllerClass();
+                call_user_func_array([$controllerInstance, $method], array_slice($argv, 2));
+            } else {
+                echo "Controller or method not found.\n";
+            }
+//        } else {
+//            if (isset($this->cliCommands[$command])) {
+//                call_user_func($this->cliCommands[$command], array_slice($argv, 2));
+//            } else {
+//                echo "Command not found: $command\n";
+//            }
+//        }
     }
 }

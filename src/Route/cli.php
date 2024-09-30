@@ -4,7 +4,8 @@ use App\Core\Router;
 
 $router = new Router();
 
-$router->cli('make:controller', function($args) {
-    $controllerName = $args[0] ?? 'DefaultController';
-    echo "Creating controller: $controllerName\n";
+// Define your CLI commands here
+$router->cli('TestController:banana', function ($args) {
+    $controller = new \App\Controller\TestController();
+    $controller->index(...$args);
 });

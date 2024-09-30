@@ -24,11 +24,16 @@ class Config
         return self::$instance;
     }
 
+    /**
+     * @throws Exception
+     */
     private function loadConfigFiles(): void
     {
         foreach (glob(CONFIG_PATH . '/*.php') as $file) {
             $configSettings = require $file;
-            $this->settings = array_merge($this->settings, $configSettings);
+            if (is_array($configSettings)) {
+                $this->settings = array_merge($this->settings, $configSettings);
+            }
         }
     }
 
