@@ -2,6 +2,8 @@
 
 namespace App\Core;
 
+use Exception;
+
 class Router
 {
     protected array $routes = [];
@@ -102,6 +104,7 @@ class Router
      * corresponding method with any additional arguments.
      *
      * @return void
+     * @throws Exception
      */
     protected function dispatchCli(): void
     {
@@ -121,7 +124,7 @@ class Router
             call_user_func($this->cliCommands[$command], array_slice($argv, 2));
         } // If the command is not found, print an error message
         else {
-            echo "Command not found: $command\n";
+            throw new Exception("Command '$command' not found.", 404);
         }
     }
 }

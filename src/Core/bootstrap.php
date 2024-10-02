@@ -2,9 +2,12 @@
 
 // Autoload dependencies using Composer
 use App\Core\Config;
+use App\Core\ErrorHandler;
 use App\Core\Router;
 
 require_once VENDOR_PATH . 'autoload.php';
+
+new ErrorHandler();
 
 // load Helper functions by autoload all files in the Helpers directory
 foreach (glob(SRC_PATH . 'Helpers/*.php') as $filename) {

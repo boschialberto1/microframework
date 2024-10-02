@@ -3,7 +3,7 @@
 namespace App\Core;
 
 use Exception;
-use JetBrains\PhpStorm\NoReturn;
+use Throwable;
 
 class ErrorHandler
 {
@@ -22,19 +22,17 @@ class ErrorHandler
      * @return void
      * @throws Exception
      */
-    #[NoReturn]
     public function handleError(int $errno, string $errstr, string $errfile, int $errline): void
     {
-        $this->renderErrorPage($errno, $errstr, $errfile, $errline);
+        $this->renderError($errno, $errstr, $errfile, $errline);
     }
 
     /**
      * @throws Exception
      */
-    #[NoReturn]
-    public function handleException(\Throwable $exception): void
+    public function handleException(Throwable $exception): void
     {
-        $this->renderErrorPage(
+        $this->renderError(
             $exception->getCode(),
             $exception->getMessage(),
             $exception->getFile(),
@@ -49,7 +47,7 @@ class ErrorHandler
     {
         $error = error_get_last();
         if ($error !== null) {
-            $this->renderErrorPage(
+            $this->renderError(
                 $error['type'],
                 $error['message'],
                 $error['file'],
@@ -61,8 +59,22 @@ class ErrorHandler
     /**
      * @throws Exception
      */
-    #[NoReturn]
-    private function renderErrorPage(int $code, string $message, string $file, int $line): void
+    private function renderError(int $code, string $message, string $file, int $line): void
+    {
+        if (isCli()) {
+            $this->renderCliError($code, $message, $file, $line);
+        } elseif (isApi()) {
+            $this->renderApiError($code, $message, $file, $line);
+        } else {
+            $this->renderHtmlError($code, $message, $file, $line);
+        }
+        exit;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function renderHtmlError(int $code, string $message, string $file, int $line): void
     {
         http_response_code(500);
         $template500 = new View('Errors');
@@ -72,6 +84,28 @@ class ErrorHandler
             'file' => $file,
             'line' => $line,
         ]);
-        exit;
+    }
+
+    private function renderApiError(int $code, string $message, string $file, int $line): void
+    {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'error' => [
+                'code' => $code,
+                'message' => $message,
+                'file' => $file,
+                'line' => $line,
+            ]
+        ], JSON_PRETTY_PRINT);
+    }
+
+    private function renderCliError(int $code, string $message, string $file, int $line): void
+    {
+        echo "Error:\n";
+        echo "\tCode: $code\n";
+        echo "\tMessage: $message\n";
+        echo "\tFile: $file\n";
+        echo "\tLine: $line\n";
     }
 }
