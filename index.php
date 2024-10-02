@@ -14,6 +14,7 @@
 const ROOT_PATH = __DIR__;
 const SRC_PATH = ROOT_PATH . '/src/';
 const CONFIG_PATH = SRC_PATH . DIRECTORY_SEPARATOR . 'Config/';
+const VIEWS_PATH = SRC_PATH . DIRECTORY_SEPARATOR . 'Views/';
 const VENDOR_PATH = ROOT_PATH . '/vendor/';
 
 

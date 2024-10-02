@@ -68,6 +68,16 @@ class Router
         }
     }
 
+    /**
+     * Dispatches an HTTP request.
+     *
+     * This method is responsible for handling HTTP requests. It checks the request method and URI,
+     * matches them against the registered routes, and calls the corresponding handler if a match is found.
+     * If no match is found, it sends a 404 response.
+     *
+     * @param string $uri The request URI.
+     * @return void
+     */
     protected function dispatchHttp(string $uri): void
     {
         $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -84,26 +94,34 @@ class Router
         echo '404 Not Found';
     }
 
+    /**
+     * Dispatches a CLI command.
+     *
+     * This method is responsible for handling CLI commands. It checks the global `$argv` array
+     * for the command, determines the appropriate controller and method, and then calls the
+     * corresponding method with any additional arguments.
+     *
+     * @return void
+     */
     protected function dispatchCli(): void
     {
         global $argv;
         $command = $argv[1] ?? '';
 
-        //if (str_contains($command, ':')) {
-            list($controller, $method) = explode(':', $command);
-            $controllerClass = "App\\Controller\\$controller";
-            if (class_exists($controllerClass) && method_exists($controllerClass, $method)) {
-                $controllerInstance = new $controllerClass();
-                call_user_func_array([$controllerInstance, $method], array_slice($argv, 2));
-            } else {
-                echo "Controller or method not found.\n";
-            }
-//        } else {
-//            if (isset($this->cliCommands[$command])) {
-//                call_user_func($this->cliCommands[$command], array_slice($argv, 2));
-//            } else {
-//                echo "Command not found: $command\n";
-//            }
-//        }
+        // Split the command into controller and method, defaulting to 'index' if method is not provided
+        list($controller, $method) = array_pad(explode(':', $command), 2, 'index');
+        $controllerClass = "App\\Controller\\$controller";
+
+        // Check if the controller class and method exist, then call the method with additional arguments
+        if (class_exists($controllerClass) && method_exists($controllerClass, $method)) {
+            $controllerInstance = new $controllerClass();
+            call_user_func_array([$controllerInstance, $method], array_slice($argv, 2));
+        } // If the command is registered in cliCommands, call the corresponding handler
+        elseif (isset($this->cliCommands[$command])) {
+            call_user_func($this->cliCommands[$command], array_slice($argv, 2));
+        } // If the command is not found, print an error message
+        else {
+            echo "Command not found: $command\n";
+        }
     }
 }
