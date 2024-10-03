@@ -1,4 +1,14 @@
 #!/usr/bin/env php
 <?php
 
-require __DIR__ . '/index.php';
+if ($argc > 1 && $argv[1] === 'start') {
+    $host = '127.0.0.1';
+    $port = '8000';
+    $docRoot = __DIR__;
+
+    echo "Starting PHP server at http://$host:$port\n";
+    exec("php -S $host:$port -t $docRoot");
+} else {
+    require __DIR__ . '/index.php';
+}
+

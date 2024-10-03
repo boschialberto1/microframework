@@ -93,7 +93,10 @@ class Router
 
         // If no route matches, send a 404 response
         http_response_code(404);
-        echo '404 Not Found';
+        $template404 = new View('Errors');
+        echo $template404->render('404', [
+            'missing' => 'Route'
+        ]);
     }
 
     /**
