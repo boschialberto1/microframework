@@ -21,9 +21,9 @@ $config = Config::getInstance();
 $router = new Router();
 
 // Define routes
-require_once SRC_PATH . 'Route/web.php';
 require_once SRC_PATH . 'Route/api.php';
 require_once SRC_PATH . 'Route/cli.php';
+require_once SRC_PATH . 'Route/web.php';
 
 // Handle the incoming request
 if (isCli()) {

@@ -10,32 +10,40 @@ class Router
     protected array $cliCommands = [];
     protected string $groupPrefix = '';
 
-    public function get(string $path, callable $handler): void
+    public function get(string $path, callable|array $handler): void
     {
         $this->addRoute('GET', $path, $handler);
     }
 
-    public function post(string $path, callable $handler): void
+    public function post(string $path, callable|array $handler): void
     {
         $this->addRoute('POST', $path, $handler);
     }
 
-    public function put(string $path, callable $handler): void
+    public function put(string $path, callable|array $handler): void
     {
         $this->addRoute('PUT', $path, $handler);
     }
 
-    public function delete(string $path, callable $handler): void
+    public function delete(string $path, callable|array $handler): void
     {
         $this->addRoute('DELETE', $path, $handler);
     }
 
-    public function addRoute(string $method, string $path, callable $handler): void
+    public function addRoute(string $method, string $path, callable|array $handler): void
     {
         $this->routes[] = [
             'method' => $method,
             'path' => $this->groupPrefix . $path,
-            'handler' => $handler,
+            'handler' => function () use ($handler) {
+                if (is_callable($handler)) {
+                    return call_user_func_array($handler, func_get_args());
+                }
+                list($controller, $method) = $handler;
+                $controllerClass = "App\\Controller\\$controller";
+                $controllerInstance = new $controllerClass();
+                return call_user_func_array([$controllerInstance, $method], func_get_args());
+            },
         ];
     }
 
@@ -61,6 +69,9 @@ class Router
         $this->cliCommands[$command] = $handler;
     }
 
+    /**
+     * @throws Exception
+     */
     public function dispatch(string $uri): void
     {
         if (php_sapi_name() === 'cli') {
@@ -79,6 +90,7 @@ class Router
      *
      * @param string $uri The request URI.
      * @return void
+     * @throws Exception
      */
     protected function dispatchHttp(string $uri): void
     {
